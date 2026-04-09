@@ -1,5 +1,19 @@
-# nixmesh
-## overview
-**nixmesh** is a Nix-native cluster orchestration system that manages an entire fleet of machines as a single NixOS configuration. Instead of bolting Kubernetes onto Linux, nixmesh builds on primitives already in NixOS — systemd, WireGuard, microVMs, and atomic generations — to deliver high-availability workload scheduling at a fraction of the complexity and overhead.
+## NixMesh
 
-Jobs, placement rules, storage, and networking are all declared in one flake. No YAML, no etcd, no Helm — just Nix. A static scheduler resolves workload placement at build time, while a lightweight daemon handles runtime rebalancing across node failures and resource shifts. Rollbacks are atomic, secrets use `agenix` or `sops-nix`, and GitOps is a systemd unit rather than a separate platform.
+A Nix-native alternative to Kubernetes for people who don't want to leave the NixOS ecosystem. Describe your entire cluster in one `flake.nix` — nodes, jobs, storage, secrets, ingress — and NixMesh handles placement, routing, and updates.
+
+**Features**
+- Declarative job scheduling with hardware constraints and node pinning
+- Automatic Traefik ingress config, hot-reloaded as jobs move
+- GitOps-native updates via comin — workers pull changes without the master pushing to them
+- Secrets stay encrypted in the repo, decrypted only on the node that needs them (sops-nix)
+- Master failover with no state sync — full cluster state lives in Consul
+- Works on a single machine with no configuration change
+
+**What it's built on**
+
+Colmena, comin, Consul, Traefik, and sops-nix. No custom replication, no custom secret management, no custom health checking — just NixOS modules composing tools that already do their jobs well.
+
+**Status**
+
+Early development and not ready for production. The module schema is designed and the library structure is in place, but the scheduler and deployment pipeline are still being built. Contributions and feedback welcome.
