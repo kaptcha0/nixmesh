@@ -1,3 +1,99 @@
 { lib, ... }:
-let inherit (lib) mkOption types; in
-{}
+let
+  inherit (lib) mkOption types;
+  node = types.submodule {
+    options = {
+      roles = mkOption {
+        type = types.listOf (
+          types.enum [
+            "master"
+            "worker"
+            "ingress"
+          ]
+        );
+        default = [ "worker" ];
+        description = "Roles of the node, used for targeting deployments.";
+      };
+
+      connection = {
+        ip = mkOption {
+          type = types.str;
+          description = "IP address of the node for ssh connection and as default endpoint ip.";
+        };
+        port = mkOption {
+          type = types.int;
+          default = 22;
+          description = "SSH port of the node.";
+        };
+        user = mkOption {
+          type = types.str;
+          default = "root";
+          description = "SSH user for connecting to the node.";
+        };
+        sshPublicKey = mkOption {
+          type = types.nullOr types.str;
+          description = "Public key for ssh connection to push deployment (if empty, will try to connect normally).";
+          default = null;
+        };
+        tags = mkOption {
+          type = types.listOf types.str;
+          description = "Tags for the node, used for targeting deployments.";
+        };
+      };
+
+      hardware = {
+        ram = mkOption {
+          type = types.int;
+          description = "RAM of the node in Mb.";
+        };
+        cpuCores = mkOption {
+          type = types.int;
+          description = "Number of CPU cores of the node.";
+        };
+        gpu = mkOption {
+          type = types.bool;
+          default = false;
+          description = "Whether the node has a GPU.";
+        };
+      };
+
+      wireguard = {
+        meshIp = mkOption {
+          type = types.str;
+          description = "IP address of the node within the mesh network.";
+        };
+
+        publicKey = mkOption {
+          type = types.str;
+          description = "Public key for the node in the mesh network.";
+        };
+
+        endpoint = {
+          ip = mkOption {
+            type = types.nullOr types.str;
+            description = "Public IP address of the node for mesh network endpoint. Defaults to the connection IP.";
+            default = null;
+          };
+
+          port = mkOption {
+            type = types.int;
+            default = 51820;
+            description = "Public port of the node for mesh network endpoint.";
+          };
+        };
+
+      };
+      extraConfig = mkOption {
+        type = types.deferredModule;
+        description = "Extra configuration for the node, merged with the main configuration. Can be used to set any valid NixOS configuration options on a per-node basis.";
+        default = { ... }: { };
+      };
+    };
+  };
+in
+{
+  options.nixmesh.cluster.nodes = mkOption {
+    type = types.attrsOf node;
+    default = { };
+  };
+}
