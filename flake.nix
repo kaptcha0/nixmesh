@@ -35,12 +35,12 @@
           formatter = pkgs.nixfmt;
         };
       flake = {
-        lib = import ./lib { lib = inputs.nixpkgs.lib; };
-        flakeModule =
-          { ... }:
-          {
-            imports = [ ./modules ];
-          };
+        lib = import ./lib {
+          lib = inputs.nixpkgs.lib;
+          coreModules = [ ./modules ];
+        };
+
+        nixosModules.default = ./modules;
       };
     };
 }

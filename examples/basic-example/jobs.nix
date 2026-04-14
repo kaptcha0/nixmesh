@@ -1,17 +1,11 @@
-{ cluster, ... }:
-let
-  volumes = cluster.config.volumes;
-  nodes = cluster.config.nodes;
-  secrets = cluster.secrets;
-in
 {
   echo =
     let
       serverPort = 8080;
     in
     {
-      container.image = "ealen/echo-server:latest";
-      prefersNode = nodes.node1;
+      container = "ealen/echo-server:latest";
+      prefersNode = "node1";
 
       ports = [ serverPort ];
 
@@ -23,7 +17,7 @@ in
       volume = {
         external-store = {
           path = "/var/www/html";
-          hostPath = volumes.nfs + "/external-store";
+          hostPath = "/mnt/nfs/external-store";
         };
       };
 
@@ -72,11 +66,12 @@ in
       };
     };
 
-    container.config = # completely declarative configuration
+    container = # completely declarative configuration
       {
         config,
         lib,
         pkgs,
+        nixmesh,
         ...
       }:
       {
@@ -87,7 +82,7 @@ in
 
           config = {
             dbtype = "pgsql";
-            adminpassFile = secrets.pgsql-pass;
+            adminpassFile = nixmesh.lib.mkSecretPath "pgsql-pass";
           };
         };
       };

@@ -3,18 +3,22 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+
     nixmesh = {
-      url = "github:kaptcha0/nixmesh";
+      url = "path:../../";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
   outputs =
     {
+      nixmesh,
       ...
     }:
     {
-      nixmesh = {
+      modules = [ nixmesh.modules.default ];
+
+      nixosModules = nixmesh.lib.mkMesh {
         cluster = {
           # meshSubnet = "10.0.0.0/16";
           # volumes = import ./volumes.nix;

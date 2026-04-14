@@ -2,25 +2,10 @@
 let
   inherit (lib) mkOption types;
 
-  image = types.submodule {
-    options.image = mkOption {
-      type = types.str;
-    };
-  };
-
-  native = types.submodule {
-    options.config = mkOption {
-      type = types.deferredModule;
-    };
-  };
-
   job = types.submodule {
     options = {
       container = mkOption {
-        type = types.oneOf [
-          image
-          native
-        ];
+        type = types.either types.str types.deferredModule;
       };
 
       prefersNode = mkOption {
@@ -130,7 +115,7 @@ let
               port = mkOption { type = types.port; };
               path = mkOption { type = types.str; };
 
-              tls = {
+              tls = mkOption {
                 type = types.bool;
                 default = false;
               };
