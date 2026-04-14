@@ -36,7 +36,11 @@
         };
       flake = {
         lib = import ./lib { lib = inputs.nixpkgs.lib; };
-        flakeModules.default = import ./modules;
+        flakeModule =
+          { ... }:
+          {
+            imports = [ ./modules ];
+          };
       };
     };
 }

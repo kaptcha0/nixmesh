@@ -10,8 +10,7 @@ in
       serverPort = 8080;
     in
     {
-      image = "ealen/echo-server:latest";
-      runtime = "oci"; # defaults to native for native NixOS containers
+      container.image = "ealen/echo-server:latest";
       prefersNode = nodes.node1;
 
       ports = [ serverPort ];
@@ -21,12 +20,12 @@ in
         ENABLE__HTTP = false;
       };
 
-      volume = [
-        {
+      volume = {
+        external-store = {
           path = "/var/www/html";
           hostPath = volumes.nfs + "/external-store";
-        }
-      ];
+        };
+      };
 
       healthCheck = {
         http = {
@@ -40,40 +39,40 @@ in
         # udp.endpoint = "127.0.0.1:${serverPort}";
       };
 
-      ingress.http = [
-        {
+      ingress.http = {
+        default = {
           host = "acme.com";
           port = 80;
           path = "/echo";
           tls = false;
-        }
-      ];
+        };
+      };
     };
 
   nextcloud = {
-    type = "native";
     healthCheck.http.endpoint = "http://localhost:80/healthcheck";
 
     requires = {
       memory = 2048; # in MB
-      cpu = 2; # cpu cores
+      cpuCores = 2; # cpu cores
     };
 
-    ingress.http = [
-      {
+    ingress.http = {
+      byPath = {
         host = "acme.com";
         port = 80;
         path = "/nextcloud";
         tls = true;
-      }
-      {
+      };
+
+      byHost = {
         host = "nextcloud.acme.com";
         port = 80;
         tls = true;
-      }
-    ];
+      };
+    };
 
-    config = # completely declarative configuration
+    container.config = # completely declarative configuration
       {
         config,
         lib,
