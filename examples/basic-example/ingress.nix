@@ -1,8 +1,6 @@
-{ cluster, ... }:
-let
-  jobs = cluster.config.jobs;
-in
 {
+  backend = "traefik";
+
   staticEntryPoints = {
     nextcloud = {
       port = 80880;
@@ -13,21 +11,21 @@ in
   middlewares = {
     rateLimit = {
       type = "rateLimit";
-      burst = 50;
-      average = 100;
+      config = {
+        burst = 50;
+        average = 100;
+      };
     };
   };
 
-  routes =
-    { entryPoints, middlewares, ... }:
-    {
-      nextcloud-tcp = {
-        job = jobs.nextcloud;
-        port = 8081;
-        entryPoint = entryPoints.nextcloud;
-        middlewares = [
-          middlewares.rateLimit
-        ];
-      };
+  routes = {
+    nextcloud-tcp = {
+      job = "nextcloud";
+      port = 8081;
+      entryPoint = "nextcloud";
+      middlewares = [
+        "rateLimit"
+      ];
     };
+  };
 }

@@ -24,7 +24,7 @@
           # volumes = import ./volumes.nix;
           nodes = import ./nodes.nix;
           jobs = import ./jobs.nix;
-          # ingress = import ./ingress.nix;
+          ingress = import ./ingress.nix;
         };
 
         # secrets = {

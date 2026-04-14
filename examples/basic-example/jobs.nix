@@ -68,9 +68,6 @@
 
     container = # completely declarative configuration
       {
-        config,
-        lib,
-        pkgs,
         nixmesh,
         ...
       }:
