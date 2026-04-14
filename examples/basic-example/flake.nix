@@ -21,10 +21,10 @@
       nixosModules = nixmesh.lib.mkMesh {
         cluster = {
           # meshSubnet = "10.0.0.0/16";
-          # volumes = import ./volumes.nix;
-          nodes = import ./nodes.nix;
-          jobs = import ./jobs.nix;
-          ingress = import ./ingress.nix;
+          volumes = import ./volumes.nix { inherit nixmesh; };
+          nodes = import ./nodes.nix { inherit nixmesh; };
+          jobs = import ./jobs.nix { inherit nixmesh; };
+          ingress = import ./ingress.nix { inherit nixmesh; };
         };
 
         # secrets = {

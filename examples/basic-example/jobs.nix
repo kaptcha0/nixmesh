@@ -1,3 +1,4 @@
+{ nixmesh, ... }:
 {
   echo =
     let
@@ -5,7 +6,7 @@
     in
     {
       container = "ealen/echo-server:latest";
-      prefersNode = "node1";
+      prefersNode = nixmesh.lib.getNode "node1";
 
       ports = [ serverPort ];
 
@@ -17,7 +18,7 @@
       volume = {
         external-store = {
           path = "/var/www/html";
-          hostPath = "/mnt/nfs/external-store";
+          hostPath = (nixmesh.lib.getVolumePath "nfs") + "/external-store";
         };
       };
 
@@ -79,7 +80,7 @@
 
           config = {
             dbtype = "pgsql";
-            adminpassFile = nixmesh.lib.mkSecretPath "pgsql-pass";
+            adminpassFile = nixmesh.lib.getSecret "pgsql-pass";
           };
         };
       };

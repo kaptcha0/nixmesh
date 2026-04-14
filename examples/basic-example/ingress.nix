@@ -1,3 +1,4 @@
+{ nixmesh, ... }:
 {
   backend = "traefik";
 
@@ -20,7 +21,7 @@
 
   routes = {
     nextcloud-tcp = {
-      job = "nextcloud";
+      job = nixmesh.lib.getJob "nextcloud";
       port = 8081;
       entryPoint = "nextcloud";
       middlewares = [

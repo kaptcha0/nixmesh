@@ -1,7 +1,4 @@
-{ cluster, ... }:
-let
-  secrets = cluster.secrets;
-in
+{ nixmesh }:
 {
   nfs = {
     type = "nfs";
@@ -16,7 +13,9 @@ in
     target = "nas.cluster.local";
     remotePath = "/cluster-volumes/smb";
 
-    username = "test-user";
-    passwordFile = secrets.smb-password;
+    credentials = {
+      username = "test-user";
+      passwordFile = nixmesh.lib.getSecret "smb-password";
+    };
   };
 }

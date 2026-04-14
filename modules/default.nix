@@ -2,7 +2,7 @@
 {
   imports = [
     ./nodes.nix
-    ./storage.nix
+    ./volumes.nix
     ./ingress.nix
     ./jobs.nix
   ];

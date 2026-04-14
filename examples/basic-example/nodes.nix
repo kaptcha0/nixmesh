@@ -1,3 +1,4 @@
+{ ... }:
 rec {
   node1 = rec {
     roles = [

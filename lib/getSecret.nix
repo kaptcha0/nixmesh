@@ -1,0 +1,1 @@
+{ lib, coreModules, ... }: secretName: secretName
