@@ -32,10 +32,11 @@
             ];
           };
 
-          formatter = pkgs.nixfmt;
+          formatter = pkgs.nixfmt-tree;
         };
       flake = {
         lib = import ./lib {
+          inherit inputs;
           lib = inputs.nixpkgs.lib;
           coreModules = [ ./modules ];
         };

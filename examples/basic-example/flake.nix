@@ -16,9 +16,7 @@
       ...
     }:
     {
-      modules = [ nixmesh.modules.default ];
-
-      nixosModules = nixmesh.lib.mkMesh {
+      nixosConfigurations = nixmesh.lib.mkMesh {
         cluster = {
           volumes = import ./volumes.nix { inherit nixmesh; };
           nodes = import ./nodes.nix { inherit nixmesh; };
