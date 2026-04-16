@@ -39,10 +39,10 @@ let
           default = "root";
           description = "SSH user for connecting to the node.";
         };
-        sshPublicKey = mkOption {
-          type = types.nullOr types.str;
-          description = "Public key for ssh connection to push deployment (if empty, will try to connect normally).";
-          default = null;
+        sshPublicKeys = mkOption {
+          type = types.listOf types.str;
+          description = "Public keys for ssh connection to push deployment (if empty, will try to connect normally).";
+          default = [ ];
         };
         tags = mkOption {
           type = types.listOf types.str;

@@ -9,6 +9,7 @@ let
   isMaster = builtins.elem "master" cfg.roles;
 in
 {
+  nixpkgs.config.allowUnfree = true;
   services.consul = {
     enable = true;
     webUi = isMaster;
@@ -42,7 +43,7 @@ in
   users.users.nixos = {
     isNormalUser = true;
     extraGroups = [ "wheel" ];
-    openssh.authorizedKeys.keys = cfg.connection.sshPublicKey;
+    openssh.authorizedKeys.keys = cfg.connection.sshPublicKeys;
   };
 
   services.openssh = {
