@@ -19,12 +19,12 @@
     {
       nixmesh,
       ...
-    }:
+    }@inputs:
     {
       nixosConfigurations = nixmesh.lib.mkMesh {
         cluster = {
           volumes = import ./volumes.nix { inherit nixmesh; };
-          nodes = import ./nodes.nix { inherit nixmesh; };
+          nodes = import ./nodes.nix { inherit nixmesh inputs; };
           jobs = import ./jobs.nix { inherit nixmesh; };
           ingress = import ./ingress.nix { inherit nixmesh; };
         };

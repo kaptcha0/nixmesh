@@ -33,6 +33,7 @@ lib.mapAttrs (
 
       nixmesh.secrets.loadSecrets
       nodeConfig.extraConfig
-    ];
+    ]
+    ++ nodeConfig.extraModules;
   }
 ) nixmesh.cluster.nodes

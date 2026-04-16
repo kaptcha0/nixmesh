@@ -1,6 +1,13 @@
-{ ... }:
+{ inputs, ... }:
+let
+  extraModules = [
+    inputs.sops-nix.nixosModules.sops
+  ];
+in
 rec {
   node1 = rec {
+    inherit extraModules;
+
     roles = [
       "master"
       "ingress"
@@ -32,6 +39,8 @@ rec {
     };
   };
   node2 = {
+    inherit extraModules;
+
     connection = {
       # mandatory
       ip = "192.168.1.51"; # mandatory

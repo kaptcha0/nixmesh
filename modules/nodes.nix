@@ -98,6 +98,12 @@ let
         description = "Extra configuration for the node, merged with the main configuration. Can be used to set any valid NixOS configuration options on a per-node basis.";
         default = { ... }: { };
       };
+
+      extraModules = mkOption {
+        type = types.listOf types.deferredModule;
+        description = "Extra NixOS modules for the node, merged with the main configuration. Can be used to set any valid NixOS configuration options on a per-node basis.";
+        default = [ ];
+      };
     };
   };
 in
