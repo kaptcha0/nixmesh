@@ -5,31 +5,34 @@
 }:
 meshConfig:
 let
-  _ = lib.evalModules {
-    modules = coreModules ++ [
-      { nixmesh = meshConfig; }
-    ];
-  };
-  mkJobs = import ./mkJob.nix;
-  mkNode = import ./mkNodes.nix;
+  nixmesh =
+    (lib.evalModules {
+      modules = coreModules ++ [
+        { nixmesh = meshConfig; }
+      ];
+    }).config.nixmesh;
+  mkJobs = import ./mkJobs.nix;
+  mkNodes = import ./mkNodes.nix;
   mkVolumes = import ./mkVolumes.nix;
   mkIngress = import ./mkIngress.nix;
 in
 lib.mapAttrs (
   nodeName: nodeConfig:
   lib.nixosSystem {
-    system = "x86_64-linux";
-    specialArgs = {
-      inherit nodeName;
-      nixmesh = meshConfig;
-    };
-    modules = [
-      (inputs: mkIngress inputs)
-      (inputs: mkJobs inputs)
-      (inputs: mkNode inputs)
-      (inputs: mkVolumes inputs)
+    system = nodeConfig.hostPlatform;
 
-      meshConfig.secrets.loadSecrets
+    specialArgs = {
+      inherit nodeName nixmesh;
+    };
+
+    modules = [
+      mkIngress
+      mkJobs
+      mkNodes
+      mkVolumes
+
+      nixmesh.secrets.loadSecrets
+      nodeConfig.extraConfig
     ];
   }
-) meshConfig.cluster.nodes
+) nixmesh.cluster.nodes

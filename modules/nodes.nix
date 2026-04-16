@@ -15,6 +15,15 @@ let
         description = "Roles of the node, used for targeting deployments.";
       };
 
+      hostPlatform = mkOption {
+        type = types.enum [
+          "x86_64-linux"
+          "aarch64-linux"
+        ];
+        default = "x86_64-linux";
+        description = "Architecture of the node.";
+      };
+
       connection = {
         ip = mkOption {
           type = types.str;
@@ -83,6 +92,7 @@ let
         };
 
       };
+
       extraConfig = mkOption {
         type = types.deferredModule;
         description = "Extra configuration for the node, merged with the main configuration. Can be used to set any valid NixOS configuration options on a per-node basis.";
