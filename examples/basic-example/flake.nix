@@ -36,6 +36,7 @@
               sops.defaultSopsFile = ./secrets.sops.yaml;
               sops.secrets.pgsql-pass = { };
               sops.secrets.smb-password = { };
+              sops.secrets.node1-wg-private-key = { };
             };
 
           fetchSecret = name: { config, ... }: config.sops.secrets.${name}.path;

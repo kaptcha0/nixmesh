@@ -1,4 +1,4 @@
-{ inputs, ... }:
+{ inputs, nixmesh, ... }:
 let
   extraModules = [
     inputs.sops-nix.nixosModules.sops
@@ -26,11 +26,14 @@ rec {
       ram = 16 * 1024; # Mb
       cpuCores = 4;
       gpu = false;
+
+      disks."/".device = "/dev/sda1";
     };
 
     wireguard = {
       meshIp = "10.0.0.1";
       publicKey = "abcd_...";
+      privateKeyFile = nixmesh.lib.getSecret "node1-wg-private-key";
       endpoint = {
         # here are the default values
         ip = connection.ip;
@@ -50,11 +53,13 @@ rec {
       ram = 16 * 1024; # Mb
       cpuCores = 8;
       gpu = true;
+      disks."/".device = "/dev/sda1";
     };
 
     wireguard = {
       meshIp = node1.wireguard.meshIp + "1";
       publicKey = "abcd_...";
+      privateKeyFile = "/path/to/private/key";
     };
   };
 }

@@ -64,6 +64,33 @@ let
           default = false;
           description = "Whether the node has a GPU.";
         };
+        disks = mkOption {
+          type = types.attrsOf (
+            types.submodule {
+              options = {
+                device = mkOption {
+                  type = types.str;
+                  description = "Mount path of the disk.";
+                };
+                fsType = mkOption {
+                  type = types.enum [
+                    "ext4"
+                    "xfs"
+                    "btrfs"
+                  ];
+                  default = "ext4";
+                  description = "Filesystem format of the disk.";
+                };
+                label = mkOption {
+                  type = types.nullOr types.str;
+                  description = "Label for the disk, used for targeting deployments.";
+                  default = null;
+                };
+              };
+            }
+          );
+          description = "Disks of the node.";
+        };
       };
 
       wireguard = {
@@ -75,6 +102,11 @@ let
         publicKey = mkOption {
           type = types.str;
           description = "Public key for the node in the mesh network.";
+        };
+
+        privateKeyFile = mkOption {
+          type = types.str;
+          description = "Path to the private key file for the node in the mesh network";
         };
 
         endpoint = {

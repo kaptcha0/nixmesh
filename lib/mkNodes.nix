@@ -1,32 +1,50 @@
 {
   nodeName,
   nixmesh,
-  pkgs,
+  lib,
   ...
-}:
+}@inputs:
 let
   cfg = nixmesh.cluster.nodes.${nodeName};
   isMaster = builtins.elem "master" cfg.roles;
+  isIngress = builtins.elem "ingress" cfg.roles;
 in
 {
   nixpkgs.config.allowUnfree = true;
-  services.consul = {
+
+  networking.nat = {
     enable = true;
-    webUi = isMaster;
+    enableIPv6 = true;
+    externalInterface = "eth0";
+    internalInterfaces = [ "wg0" ];
   };
 
-  environment.systemPackages = with pkgs; [
-    vim
-    helix
-    ssh-to-age
-  ];
+  networking.firewall = {
+    allowedTCPPorts = [ ];
+    allowedUDPPorts = [
+      51820
+    ];
+  };
 
-  boot.isContainer = true;
-  systemd.suppressedSystemUnits = [
-    "dev-mqueue.mount"
-    "sys-kernel-debug.mount"
-    "sys-fs-fuse-connections.mount"
-  ];
+  networking.wg-quick.interfaces.wg0 = {
+    inherit (cfg.wireguard) privateKeyFile;
+
+    listenPort = 51820;
+    address = [ cfg.wireguard.meshIp ];
+
+    peers = lib.mapAttrsToList (
+      peerName: peerConfig:
+      with peerConfig.wireguard;
+      let
+        endpointIp = if endpoint.ip != null then endpoint.ip else peerConfig.connection.ip;
+      in
+      {
+        publicKey = publicKey;
+        allowedIPs = [ meshIp ];
+        endpoint = "${endpointIp}:${toString endpoint.port}";
+      }
+    ) nixmesh.cluster.nodes;
+  };
 
   security.sudo.wheelNeedsPassword = false;
 
@@ -54,6 +72,15 @@ in
   };
 
   networking.nftables.enable = true;
+  networking.hostName = nodeName;
+
+  boot.loader.systemd-boot.enable = true;
+
+  fileSystems = lib.mapAttrs (diskName: diskConfig: {
+    device = diskConfig.device;
+    fsType = diskConfig.fsType;
+    label = diskConfig.label;
+  }) cfg.hardware.disks;
 
   system.stateVersion = "26.05";
 }
