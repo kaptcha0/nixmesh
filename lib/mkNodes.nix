@@ -39,9 +39,10 @@ in
         endpointIp = if endpoint.ip != null then endpoint.ip else peerConfig.connection.ip;
       in
       {
-        publicKey = publicKey;
-        allowedIPs = [ meshIp ];
+        inherit publicKey;
+        allowedIPs = [ (meshIp + "/32") ];
         endpoint = "${endpointIp}:${toString endpoint.port}";
+        persistentKeepalive = 25;
       }
     ) nixmesh.cluster.nodes;
   };
@@ -58,7 +59,7 @@ in
     };
   };
 
-  users.users.nixos = {
+  users.users.${cfg.connection.user} = {
     isNormalUser = true;
     extraGroups = [ "wheel" ];
     openssh.authorizedKeys.keys = cfg.connection.sshPublicKeys;
