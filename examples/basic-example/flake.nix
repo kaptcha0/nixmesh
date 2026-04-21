@@ -20,8 +20,8 @@
       nixmesh,
       ...
     }@inputs:
-    {
-      nixosConfigurations = nixmesh.lib.mkMesh {
+    let
+      cluster = nixmesh.lib.mkMesh {
         cluster = {
           volumes = import ./volumes.nix { inherit nixmesh; };
           nodes = import ./nodes.nix { inherit nixmesh inputs; };
@@ -42,5 +42,8 @@
           fetchSecret = name: { config, ... }: config.sops.secrets.${name}.path;
         };
       };
+    in
+    {
+      nixosConfigurations = cluster.nixosConfigs;
     };
 }

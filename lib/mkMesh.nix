@@ -3,12 +3,12 @@
   coreModules,
   ...
 }:
-meshConfig:
+spec:
 let
   nixmesh =
     (lib.evalModules {
       modules = coreModules ++ [
-        { nixmesh = meshConfig; }
+        { nixmesh = spec; }
       ];
     }).config.nixmesh;
   mkJobs = import ./mkJobs.nix;
@@ -16,24 +16,35 @@ let
   mkVolumes = import ./mkVolumes.nix;
   mkIngress = import ./mkIngress.nix;
 in
-lib.mapAttrs (
-  nodeName: nodeConfig:
-  lib.nixosSystem {
-    system = nodeConfig.hostPlatform;
+{
+  nixosConfigs = lib.mapAttrs (
+    nodeName: nodeConfig:
+    lib.nixosSystem {
+      system = nodeConfig.hostPlatform;
 
-    specialArgs = {
-      inherit nodeName nixmesh;
-    };
+      specialArgs = {
+        inherit
+          nodeName
+          nixmesh
+          spec
+          coreModules
+          ;
 
-    modules = [
-      mkIngress
-      mkJobs
-      mkNodes
-      mkVolumes
+        extraFunctions = {
+          fetchSecret = nixmesh.secrets.fetchSecret;
+        };
+      };
 
-      nixmesh.secrets.loadSecrets
-      nodeConfig.extraConfig
-    ]
-    ++ nodeConfig.extraModules;
-  }
-) nixmesh.cluster.nodes
+      modules = [
+        mkIngress
+        mkJobs
+        mkNodes
+        mkVolumes
+
+        nixmesh.secrets.loadSecrets
+        nodeConfig.extraConfig
+      ]
+      ++ nodeConfig.extraModules;
+    }
+  ) nixmesh.cluster.nodes;
+}

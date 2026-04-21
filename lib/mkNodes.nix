@@ -1,11 +1,25 @@
 {
   nodeName,
   nixmesh,
+  spec,
+  coreModules,
   lib,
+  extraFunctions,
   ...
 }@inputs:
 let
-  cfg = nixmesh.cluster.nodes.${nodeName};
+  rawCfg = spec.cluster.nodes.${nodeName};
+  cfg =
+    if builtins.isFunction rawCfg then
+      (lib.evalModules {
+        modules = coreModules ++ [
+          {
+            nixmesh.cluster.nodes.${nodeName} = rawCfg extraFunctions;
+          }
+        ];
+      }).config.nixmesh.cluster.nodes.${nodeName}
+    else
+      nixmesh.cluster.nodes.${nodeName};
   isMaster = builtins.elem "master" cfg.roles;
   isIngress = builtins.elem "ingress" cfg.roles;
 in

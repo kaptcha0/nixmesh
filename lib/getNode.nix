@@ -1,1 +1,0 @@
-{ lib, coreModules, ... }: nodeName: nodeName
