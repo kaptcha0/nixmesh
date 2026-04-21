@@ -10,7 +10,36 @@ let
   isIngress = builtins.elem "ingress" cfg.roles;
 in
 {
+  ## consul configuration
   nixpkgs.config.allowUnfree = true;
+
+  services.consul = {
+    enable = true;
+    webUi = isMaster;
+
+    interface = {
+      bind = "wg0";
+      advertise = "wg0";
+    };
+
+    extraConfig = {
+      server = isMaster;
+      datacenter = "nixmesh";
+      ui_config.enabled = true;
+
+      retry_join = lib.mapAttrsToList (
+        peerName: peerConfig: "${peerConfig.wireguard.meshIp}"
+      ) nixmesh.cluster.nodes;
+
+      bootstrap_expect = lib.length (
+        lib.filter (peerConfig: builtins.elem "master" peerConfig.roles) nixmesh.cluster.nodes
+      );
+    };
+  };
+
+  ## wireguard configuration
+  networking.nftables.enable = true;
+  networking.hostName = nodeName;
 
   networking.nat = {
     enable = true;
@@ -19,10 +48,30 @@ in
     internalInterfaces = [ "wg0" ];
   };
 
-  networking.firewall = {
-    allowedTCPPorts = [ ];
+  networking.firewall.interfaces."wg0" = {
+    allowedTCPPorts = [
+      8600 # consul DNS
+      8301 # consul gossip LAN
+    ]
+    ++ lib.optionals isMaster [
+      8503 # consul GRPC API
+      8300 # consul internal server communication
+      8302 # consul gossip WAN
+    ];
+
     allowedUDPPorts = [
-      51820
+      8600 # consul DNS
+      8301 # consul gossip LAN
+    ];
+  };
+
+  networking.firewall = {
+    allowedTCPPorts = [
+      8500 # consul HTTP API
+    ];
+
+    allowedUDPPorts = [
+      51820 # wireguard
     ];
   };
 
@@ -47,23 +96,7 @@ in
     ) nixmesh.cluster.nodes;
   };
 
-  security.sudo.wheelNeedsPassword = false;
-
-  nix = {
-    settings.trusted-users = [ "nixos" ];
-
-    gc = {
-      automatic = true;
-      dates = "weekly";
-      options = "--delete-older-than 30d";
-    };
-  };
-
-  users.users.${cfg.connection.user} = {
-    isNormalUser = true;
-    extraGroups = [ "wheel" ];
-    openssh.authorizedKeys.keys = cfg.connection.sshPublicKeys;
-  };
+  ## basic system configuration
 
   services.openssh = {
     enable = true;
@@ -72,8 +105,23 @@ in
     settings.PermitRootLogin = "no";
   };
 
-  networking.nftables.enable = true;
-  networking.hostName = nodeName;
+  users.users.${cfg.connection.user} = {
+    isNormalUser = true;
+    extraGroups = [ "wheel" ];
+    openssh.authorizedKeys.keys = cfg.connection.sshPublicKeys;
+  };
+
+  security.sudo.wheelNeedsPassword = false;
+
+  nix = {
+    settings.trusted-users = [ cfg.connection.user ];
+
+    gc = {
+      automatic = true;
+      dates = "weekly";
+      options = "--delete-older-than 30d";
+    };
+  };
 
   boot.loader.systemd-boot.enable = true;
 

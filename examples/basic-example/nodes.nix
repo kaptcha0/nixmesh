@@ -18,7 +18,7 @@ rec {
       # mandatory
       ip = "192.168.1.50"; # mandatory
       port = 222; # defaults to 22
-      user = "testUser"; # defaults to root
+      user = "testUser"; # defaults to nixmesh
       sshPublicKeys = [ "xyz_..." ]; # public key for ssh connection to push deployment (if empty, will try to connect normally)
     };
 

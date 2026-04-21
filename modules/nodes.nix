@@ -36,7 +36,7 @@ let
         };
         user = mkOption {
           type = types.str;
-          default = "root";
+          default = "nixmesh";
           description = "SSH user for connecting to the node.";
         };
         sshPublicKeys = mkOption {
