@@ -164,7 +164,7 @@ let
   };
 in
 {
-  options.nixmesh.cluster.jobs = mkOption {
+  options.nixmesh.jobs = mkOption {
     type = types.attrsOf job;
     default = { };
     description = "Declarative job definitions for the cluster.";

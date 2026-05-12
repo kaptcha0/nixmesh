@@ -4,22 +4,20 @@
   spec,
   coreModules,
   lib,
-  extraFunctions,
   ...
 }@inputs:
 let
-  rawCfg = spec.cluster.nodes.${nodeName};
   cfg =
-    if builtins.isFunction rawCfg then
+    if builtins.isFunction spec.nodes.${nodeName} then
       (lib.evalModules {
         modules = coreModules ++ [
           {
-            nixmesh.cluster.nodes.${nodeName} = rawCfg extraFunctions;
+            nixmesh.nodes.${nodeName} = (spec.nodes.${nodeName} inputs);
           }
         ];
-      }).config.nixmesh.cluster.nodes.${nodeName}
+      }).config.nixmesh.nodes.${nodeName}
     else
-      nixmesh.cluster.nodes.${nodeName};
+      nixmesh.nodes.${nodeName};
   isMaster = builtins.elem "master" cfg.roles;
   isIngress = builtins.elem "ingress" cfg.roles;
 in
@@ -43,10 +41,10 @@ in
 
       retry_join = lib.mapAttrsToList (
         peerName: peerConfig: "${peerConfig.wireguard.meshIp}"
-      ) nixmesh.cluster.nodes;
+      ) nixmesh.nodes;
 
       bootstrap_expect = lib.length (
-        lib.filter (peerConfig: builtins.elem "master" peerConfig.roles) nixmesh.cluster.nodes
+        lib.filter (peerConfig: builtins.elem "master" peerConfig.roles) nixmesh.nodes
       );
     };
   };
@@ -107,7 +105,7 @@ in
         endpoint = "${endpointIp}:${toString endpoint.port}";
         persistentKeepalive = 25;
       }
-    ) nixmesh.cluster.nodes;
+    ) nixmesh.nodes;
   };
 
   ## basic system configuration

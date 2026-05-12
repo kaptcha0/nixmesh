@@ -29,10 +29,6 @@ in
           spec
           coreModules
           ;
-
-        extraFunctions = {
-          fetchSecret = nixmesh.secrets.fetchSecret;
-        };
       };
 
       modules = [
@@ -46,5 +42,5 @@ in
       ]
       ++ nodeConfig.extraModules;
     }
-  ) nixmesh.cluster.nodes;
+  ) nixmesh.nodes;
 }

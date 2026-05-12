@@ -140,7 +140,7 @@ let
   };
 in
 {
-  options.nixmesh.cluster.nodes = mkOption {
+  options.nixmesh.nodes = mkOption {
     type = types.attrsOf node;
     default = { };
   };

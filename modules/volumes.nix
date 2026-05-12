@@ -44,7 +44,7 @@ let
   };
 in
 {
-  options.nixmesh.cluster.volumes = mkOption {
+  options.nixmesh.volumes = mkOption {
     type = types.attrsOf volume;
     default = { };
     description = "Cluster-wide volume definitions.";

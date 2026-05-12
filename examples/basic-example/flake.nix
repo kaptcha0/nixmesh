@@ -22,12 +22,10 @@
     }@inputs:
     let
       cluster = nixmesh.lib.mkMesh {
-        cluster = {
-          volumes = import ./volumes.nix { inherit nixmesh; };
-          nodes = import ./nodes.nix { inherit nixmesh inputs; };
-          jobs = import ./jobs.nix { inherit nixmesh; };
-          ingress = import ./ingress.nix { inherit nixmesh; };
-        };
+        volumes = import ./volumes.nix { inherit nixmesh; };
+        nodes = import ./nodes.nix { inherit nixmesh inputs; };
+        jobs = import ./jobs.nix { inherit nixmesh; };
+        ingress = import ./ingress.nix { inherit nixmesh; };
 
         secrets = {
           loadSecrets =
@@ -38,8 +36,6 @@
               sops.secrets.smb-password = { };
               sops.secrets.node1-wg-private-key = { };
             };
-
-          fetchSecret = name: { config, ... }: config.sops.secrets.${name}.path;
         };
       };
     in

@@ -54,7 +54,7 @@ let
   };
 in
 {
-  options.nixmesh.cluster.ingress = {
+  options.nixmesh.ingress = {
     backend = mkOption {
       type = types.enum [ "traefik" ];
       description = "Ingress backend to use (currently only traefik).";

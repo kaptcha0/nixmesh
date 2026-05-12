@@ -4,9 +4,9 @@ let
     inputs.sops-nix.nixosModules.sops
   ];
 in
-{
+rec {
   node1 =
-    { fetchSecret, ... }:
+    { config, ... }:
     rec {
       inherit extraModules;
 
@@ -35,7 +35,7 @@ in
       wireguard = {
         meshIp = "10.0.0.1";
         publicKey = "abcd_...";
-        privateKeyFile = fetchSecret "node1-wg-private-key";
+        privateKeyFile = config.sops.secrets."node1-wg-private-key".path;
         endpoint = {
           # here are the default values
           ip = connection.ip;
@@ -43,25 +43,26 @@ in
         };
       };
     };
-  # node2 = {
-  #   inherit extraModules;
 
-  #   connection = {
-  #     # mandatory
-  #     ip = "192.168.1.51"; # mandatory
-  #   };
+  node2 = inputs: {
+    inherit extraModules;
 
-  #   hardware = {
-  #     ram = 16 * 1024; # Mb
-  #     cpuCores = 8;
-  #     gpu = true;
-  #     disks."/".device = "/dev/sda1";
-  #   };
+    connection = {
+      # mandatory
+      ip = "192.168.1.51"; # mandatory
+    };
 
-  #   wireguard = {
-  #     meshIp = node1.wireguard.meshIp + "1";
-  #     publicKey = "abcd_...";
-  #     privateKeyFile = "/path/to/private/key";
-  #   };
-  # };
+    hardware = {
+      ram = 16 * 1024; # Mb
+      cpuCores = 8;
+      gpu = true;
+      disks."/".device = "/dev/sda1";
+    };
+
+    wireguard = {
+      meshIp = (node1 inputs).wireguard.meshIp + "1";
+      publicKey = "abcd_...";
+      privateKeyFile = "/path/to/private/key";
+    };
+  };
 }
