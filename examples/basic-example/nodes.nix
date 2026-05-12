@@ -4,7 +4,7 @@ let
     inputs.sops-nix.nixosModules.sops
   ];
 in
-rec {
+{
   node1 =
     { config, ... }:
     rec {
@@ -44,7 +44,7 @@ rec {
       };
     };
 
-  node2 = inputs: {
+  node2 = {
     inherit extraModules;
 
     connection = {
@@ -60,7 +60,7 @@ rec {
     };
 
     wireguard = {
-      meshIp = (node1 inputs).wireguard.meshIp + "1";
+      meshIp = "10.0.0.2";
       publicKey = "abcd_...";
       privateKeyFile = "/path/to/private/key";
     };
